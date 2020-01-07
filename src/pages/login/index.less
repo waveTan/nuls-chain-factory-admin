@@ -1,0 +1,55 @@
+.login {
+  height: 100%;
+  width: 100%;
+  background-color: #2d3a4b;
+  .login-content {
+    position: relative;
+    width: 520px;
+    max-width: 100%;
+    padding: 160px 35px 0;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  h3 {
+    font-size: 26px;
+    color: #eee;
+    margin-bottom: 40px;
+    text-align: center;
+    font-weight: 700;
+  }
+  .ant-form-item-control {
+    line-height: 47px;
+  }
+  .ant-input-affix-wrapper .ant-input-prefix {
+    font-size: 16px;
+  }
+  .ant-input-affix-wrapper {
+    border: 1px solid hsla(0,0%,100%,.1) !important;
+  }
+  input {
+    border: none;
+    background: rgba(0,0,0,.1) !important;
+    border-radius: 0 ;
+    color: #fff;
+    height: 47px;
+    box-shadow: none !important;
+    caret-color: #fff; //输入光标颜色
+    &:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px #283443 inset !important;
+      -webkit-text-fill-color: #fff; // 字体颜色
+    }
+  }
+  .ant-input-affix-wrapper .ant-input:not(:first-child){
+    padding-left: 38px;
+  }
+  .ant-form-explain {
+    color: #ff4949;
+    font-size: 12px;
+  }
+  .login-form-button {
+    margin-top: 10px;
+    width: 100%;
+    height: 36px;
+  }
+
+}
