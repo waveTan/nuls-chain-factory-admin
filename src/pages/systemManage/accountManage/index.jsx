@@ -13,11 +13,9 @@ class Main extends React.Component {
   state = {
     loading: true
   };
-
   componentDidMount() {
     //this.getList()
   }
-
   async getList() {
     this.setState({
       loading: true
@@ -39,7 +37,6 @@ class Main extends React.Component {
       })
     }
   }
-
   //下拉回调
   handleChange = (v) => {
     this.setState({
