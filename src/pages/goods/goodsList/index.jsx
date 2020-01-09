@@ -1,26 +1,16 @@
 import React from 'react';
 import './index.less'
-import {Tabs, Input, Button, Table, Divider,Select} from 'antd';
+import {Tabs, Input, Button, Table, Divider, Select} from 'antd';
+import moment from 'moment';
+import {get, post} from 'utils/request'
 
 const {TabPane} = Tabs;
 const {Column} = Table;
-const { Option } = Select;
+const {Option} = Select;
 
 function callback(key) {
   console.log(key);
 }
-
-const data = [
-  {key: '1', productName: '轻钱包/转账/合约调用', price: '3000', time: '2019-11-02 18:30', totalSales: '20', serialNumber: 5},
-  {key: '2', productName: '轻钱包/转账/合约调用', price: '3000', time: '2019-11-02 18:30', totalSales: '20', serialNumber: 5},
-  {key: '3', productName: '轻钱包/转账/合约调用', price: '3000', time: '2019-11-02 18:30', totalSales: '20', serialNumber: 5},
-  {key: '4', productName: '轻钱包/转账/合约调用', price: '3000', time: '2019-11-02 18:30', totalSales: '20', serialNumber: 5},
-  {key: '5', productName: '轻钱包/转账/合约调用', price: '3000', time: '2019-11-02 18:30', totalSales: '20', serialNumber: 5},
-  {key: '6', productName: '轻钱包/转账/合约调用', price: '3000', time: '2019-11-02 18:30', totalSales: '20', serialNumber: 5},
-  {key: '7', productName: '轻钱包/转账/合约调用', price: '3000', time: '2019-11-02 18:30', totalSales: '20', serialNumber: 5},
-  {key: '8', productName: '轻钱包/转账/合约调用', price: '3000', time: '2019-11-02 18:30', totalSales: '20', serialNumber: 5},
-  {key: '9', productName: '轻钱包/转账/合约调用', price: '3000', time: '2019-11-02 18:30', totalSales: '20', serialNumber: 5},
-];
 
 const rowSelection = {
   onChange: (selectedRowKeys, selectedRows) => {
@@ -49,18 +39,48 @@ function onSearch(val) {
 }
 
 class GoodsList extends React.Component {
-  state = {};
+  state = {
+    goodsData:[],//商品列表
+  };
 
   componentDidMount() {
-
+    this.getGoodsList();
   }
+
+  /**
+   * @disc: 发布商品
+   * @date: 2020-01-08 15:37
+   * @author: Wave
+   */
+  newChange = () => {
+    let url = '/goods/editGoods';
+    this.props.history.push(url);
+  };
+
+  /**
+   * @disc: 获取商品列表
+   * @date: 2020-01-09 13:48
+   * @author: Wave
+   */
+  getGoodsList = async () => {
+    const url = '/api/goods/list?pageNumber=1&pageSize=10';
+    const res = await get(url);
+    console.log(res);
+    if (res.data.success) {
+      for (let item of res.data.result.list) {
+        item.time = moment(item.createTime).format('YYYY-MM-DD HH:mm:ss')
+      }
+      this.setState({goodsData: res.data.result.list});
+    }
+  };
 
   render() {
     return (
       <div className='goods_list'>
-        <Tabs defaultActiveKey="1" onChange={callback}>
+        <Tabs defaultActiveKey="1" click={callback}>
           <TabPane tab="出售中" key="1">
-            <Button type="primary">发布商品</Button>
+
+            <Button type="primary" onClick={this.newChange}>发布商品</Button>
 
             <div className="filtrate">
               <div className="condition">
@@ -71,7 +91,7 @@ class GoodsList extends React.Component {
                 <span className="title">商品分组</span>
                 <Select
                   showSearch
-                  style={{ width: 200 }}
+                  style={{width: 200}}
                   placeholder="Select a person"
                   optionFilterProp="children"
                   onChange={onChange}
@@ -92,24 +112,24 @@ class GoodsList extends React.Component {
               </div>
             </div>
 
-            <Table dataSource={data} rowSelection={rowSelection}>
-              <Column title="商品" dataIndex="productName" key="productName"/>
-              <Column title="价格" dataIndex="price" key="price"/>
+            <Table dataSource={this.state.goodsData} rowSelection={rowSelection}>
+              <Column title="商品" dataIndex="goodsName" key="productName"/>
+              <Column title="价格" dataIndex="linePrice" key="price"/>
               <Column title="创建时间" dataIndex="time" key="time"/>
               <Column title="总销售量" dataIndex="totalSales" key="totalSales"/>
               <Column title="序号" dataIndex="serialNumber" key="serialNumber"/>
               <Column title="操作" key="action"
-                render={(text, record) => (
-                  <span>
+                      render={(text, record) => (
+                        <span>
                     <a>编辑</a>
                     <Divider type="vertical"/>
                     <a>下架</a>
                     <Divider type="vertical"/>
                     <a>删除</a>
-                    <Divider type="vertical"/>
-                    <a>复制</a>
+                    {/*<Divider type="vertical"/>
+                    <a>复制</a>*/}
                   </span>
-                )}
+                      )}
               />
             </Table>
           </TabPane>

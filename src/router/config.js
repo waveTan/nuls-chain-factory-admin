@@ -2,6 +2,7 @@ import loadable from '@loadable/component'
 
 const DataOverview = loadable(() => import('page/dashBoard/dataOverview'));
 const GoodsList = loadable(() => import('page/goods/goodsList'));
+const EditGoods = loadable(() => import('page/goods/editGoods'));
 const GoodsGrouping = loadable(() => import('page/goods/goodsGrouping'));
 const OrdersList = loadable(() => import('page/orders/ordersList'));
 const AccountManage = loadable(() => import('page/systemManage/accountManage'));
@@ -28,6 +29,12 @@ const config = [
         title: '商品信息',
         value: '/goods/goodsList',
         component: GoodsList,
+      },
+      {
+        title: '新增商品',
+        value: '/goods/editGoods',
+        hide:true,
+        component: EditGoods,
       },
       {
         title: '商品分组',
@@ -57,23 +64,6 @@ const config = [
         title: '账号管理',
         value: '/systemManage/accountManage',
         component: AccountManage
-        /*title: '系统管xxx理',
-        icon: 'setting',
-        value:'2',
-        children:[
-          {
-            title: '系统管xaaxx理',
-            icon: 'setting',
-            value:'3',
-            children:[
-              {
-                title: '系统管xssxx理',
-                value: '/systemManage/2/3/accountManage',
-                component: AccountManage
-              }
-            ]
-          }
-        ]*/
       },
     ]
   },

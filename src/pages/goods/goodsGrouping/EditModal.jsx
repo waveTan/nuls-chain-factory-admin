@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Modal, Form, Input, message} from "antd";
-import {get} from 'utils/request'
+import {get,post} from 'utils/request'
 
 const formItemLayout = {
   labelCol: {span: 8},
@@ -17,25 +17,26 @@ class EditModal extends Component {
       show: !this.state.show
     })
   };
-  phoneChange = (e) => {
+  groupingNameChange = (e) => {
     const value = e.target.value;
-    this.props.form.setFieldsValue({'userName': value})
+    this.props.form.setFieldsValue({'name': value})
   };
   submit = () => {
     const {validateFields, getFieldsValue} = this.props.form;
     validateFields(async err => {
       if (!err) {
-        const userInfo = getFieldsValue();
+        const groupingName = getFieldsValue();
+        //console.log(groupingName);
         this.setState({
           confirmLoading: true,
         });
-        const url = this.props.title === '用户信息' ? '/usdi/account/edit' : '/usdi/account/new';
-        const res = await get(url);
+        const url = this.props.title === '编辑分组' ? '/api/goods/group/add' : '/api/goods/group/add';
+        const res = await post(url,groupingName);
         if (res.success) {
           this.setState({
             confirmLoading: false
           });
-          this.props.submit(userInfo);
+          this.props.submit(groupingName);
           this.visible()
         } else {
           message.error(res.msg)
@@ -55,13 +56,12 @@ class EditModal extends Component {
              afterClose={resetFields}
       >
         <Form.Item {...formItemLayout} label="组名">
-          {getFieldDecorator('phone', {
+          {getFieldDecorator('name', {
             rules: [
-              {required: true, message: '请输入手机号',},
-              {pattern: /^[1][3,4,5,6,7,8,9][0-9]{9}$/, message: '请输入正确的手机号',}
+              {required: true, message: '请输入组名',},
             ],
             validateTrigger: ['onBlur']
-          })(<Input placeholder="请输入组名" onChange={this.phoneChange}/>)}
+          })(<Input placeholder="请输入组名" onChange={this.groupingNameChange}/>)}
         </Form.Item>
       </Modal>
     );
