@@ -39,6 +39,17 @@ class EditGoods extends Component {
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values);
+        // const formVal = this.props.form.getFieldsValue();
+        const { keys, specification, price, ...rest} = values;
+        const specificList = []
+        keys.map(v => {
+          specificList.push({
+            specification: specification[v],
+            price: price[v]
+          })
+        })
+        const newVal = {...rest,specificList}
+        console.log(newVal, '---newVal')
       }
     });
   };
@@ -65,6 +76,7 @@ class EditGoods extends Component {
    * @author: Wave
    */
   remove = k => {
+    console.log(k, '---k')
     const {form} = this.props;
     // can use data-binding to get
     const keys = form.getFieldValue('keys');
@@ -88,7 +100,7 @@ class EditGoods extends Component {
     const {form} = this.props;
     // can use data-binding to get
     const keys = form.getFieldValue('keys');
-    const nextKeys = keys.concat(id++);
+    const nextKeys = keys.concat(++id);
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
@@ -252,16 +264,16 @@ class EditGoods extends Component {
           <div className="module0">
             <div className="fl">
               <Form.Item label="商品名称" className="row0">
-                {getFieldDecorator('email', {rules: [{required: true, message: '请输入商品名称',},],})(<Input/>)}
+                {getFieldDecorator('goodsName', {rules: [{required: true, message: '请输入商品名称',},],})(<Input/>)}
               </Form.Item>
               <Form.Item label="商品分组" className="row0">
-                {getFieldDecorator('email', {rules: [{required: true, message: '请输入商品名称',},],})(<Input/>)}
+                {getFieldDecorator('term', {rules: [{required: true, message: '请输入商品分组',},],})(<Input/>)}
               </Form.Item>
               <Form.Item label="划线价" className="row0">
-                {getFieldDecorator('email', {rules: [{required: true, message: '请输入商品名称',},],})(<Input/>)}
+                {getFieldDecorator('linePrice', {rules: [{required: true, message: '请输入划线价',},],})(<Input/>)}
               </Form.Item>
               <Form.Item label="开发团队" className="row0">
-                {getFieldDecorator('email', {rules: [{required: true, message: '请输入商品名称',},],})(<Input/>)}
+                {getFieldDecorator('groupIndexList', {rules: [{required: true, message: '请输入开发团队',},],})(<Input/>)}
               </Form.Item>
             </div>
             <div className="fr">
@@ -274,10 +286,10 @@ class EditGoods extends Component {
                 </Upload>
               </Form.Item>
               <Form.Item label="当前版本" className="row0">
-                {getFieldDecorator('email', {rules: [{required: true, message: '请输入商品名称',},],})(<Input/>)}
+                {getFieldDecorator('version', {rules: [{required: true, message: '请输入当前版本',},],})(<Input/>)}
               </Form.Item>
               <Form.Item label="试用链接" className="row0">
-                {getFieldDecorator('email', {rules: [{required: true, message: '请输入商品名称',},],})(<Input/>)}
+                {getFieldDecorator('trialUrl', {rules: [{required: true, message: '请输入试用链接',},],})(<Input/>)}
               </Form.Item>
             </div>
           </div>
