@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import E from 'wangeditor'
 import './index.less'
 import {Form, Input, Upload, Icon, message, Select, Button, AutoComplete,} from 'antd';
+import {get, post} from 'utils/request'
+const { Option } = Select
 
 let id = 0;
 
@@ -25,42 +27,93 @@ function beforeUpload(file) {
 
 class EditGoods extends Component {
   state = {
+    groupingData: [],//商品分组列表
     confirmDirty: false,
     autoCompleteResult: [],
     loading: false,
   };
 
   componentDidMount() {
-    this.initEditor()
+    this.initEditor();
+    this.getGroupList();
   }
 
+  /**
+   * @disc: 获取分组列表
+   * @date: 2020-01-09 13:48
+   * @author: Wave
+   */
+  getGroupList = async () => {
+    const url = '/api/goods/group/list';
+    const res = await get(url);
+    //console.log(res);
+    if (res.data.success) {
+      let newData = [];
+      for (let item of res.data.result) {
+        newData.push(<Option key={Number(item.id)}>{item.name}</Option>);
+      }
+      this.setState({groupingData: newData});
+    }
+  };
+
+  /**
+   * @disc: 确认提交
+   * @params: e
+   * @date: 2020-01-10 14:51
+   * @author: Wave
+   */
   handleSubmit = e => {
     e.preventDefault();
-    this.props.form.validateFieldsAndScroll((err, values) => {
+    this.props.form.validateFieldsAndScroll(async (err, values) => {
       if (!err) {
-        console.log('Received values of form: ', values);
-        // const formVal = this.props.form.getFieldsValue();
-        const { keys, specification, price, ...rest} = values;
-        const specificList = []
+        const {keys, specification, price, ...rest} = values;
+        const specificList = [];
         keys.map(v => {
           specificList.push({
-            specification: specification[v],
-            price: price[v]
+            specificName: specification[v],
+            price: Number(price[v])
           })
-        })
-        const newVal = {...rest,specificList}
-        console.log(newVal, '---newVal')
+        });
+        const newVal = {...rest, specificList};
+        for (let item in newVal.term) {
+          newVal.term[item] = Number(newVal.term[item])
+        }
+        //console.log(newVal, '---newVal');
+        let parameter = {
+          "goodsName": newVal.goodsName,
+          "picUrl": "url for pic",
+          "linePrice": Number(newVal.linePrice),
+          "term": newVal.groupIndexList,
+          "version": newVal.version,
+          "trialUrl": "url for tria",
+          "groupIndexList": newVal.term,
+          "specificList": newVal.specificList
+        };
+        const url = '/api/goods/add';
+        const res = await post(url, parameter);
+        //console.log(res);
+        if (res.data.success) {
+          let url = '/goods/goodsList';
+          this.props.history.push(url);
+        } else {
+          message.error(JSON.stringify(res.data))
+        }
       }
     });
   };
 
+  /**
+   * @disc: 商品图片提交
+   * @params: info
+   * @date: 2020-01-10 14:51
+   * @author: Wave
+   */
   handleChange = info => {
     if (info.file.status === 'uploading') {
       this.setState({loading: true});
       return;
     }
     if (info.file.status === 'done') {
-      // Get this url from response in real world.
       getBase64(info.file.originFileObj, imageUrl =>
         this.setState({
           imageUrl,
@@ -76,16 +129,12 @@ class EditGoods extends Component {
    * @author: Wave
    */
   remove = k => {
-    console.log(k, '---k')
     const {form} = this.props;
-    // can use data-binding to get
     const keys = form.getFieldValue('keys');
-    // We need at least one passenger
     if (keys.length === 1) {
       return;
     }
 
-    // can use data-binding to set
     form.setFieldsValue({
       keys: keys.filter(key => key !== k),
     });
@@ -98,11 +147,8 @@ class EditGoods extends Component {
    */
   add = () => {
     const {form} = this.props;
-    // can use data-binding to get
     const keys = form.getFieldValue('keys');
     const nextKeys = keys.concat(++id);
-    // can use data-binding to set
-    // important! notify form to detect changes
     form.setFieldsValue({
       keys: nextKeys,
     });
@@ -195,6 +241,7 @@ class EditGoods extends Component {
   }
 
   render() {
+
     const uploadButton = (
       <div>
         <Icon type={this.state.loading ? 'loading' : 'plus'}/>
@@ -253,8 +300,6 @@ class EditGoods extends Component {
           ) : null}
         </Form.Item>
       </div>
-
-
     ));
 
     return (
@@ -264,10 +309,16 @@ class EditGoods extends Component {
           <div className="module0">
             <div className="fl">
               <Form.Item label="商品名称" className="row0">
-                {getFieldDecorator('goodsName', {rules: [{required: true, message: '请输入商品名称',},],})(<Input/>)}
+                {getFieldDecorator('goodsName', {rules: [{required: true, message: '请输入商品名称'}]})(<Input/>)}
               </Form.Item>
               <Form.Item label="商品分组" className="row0">
-                {getFieldDecorator('term', {rules: [{required: true, message: '请输入商品分组',},],})(<Input/>)}
+                {getFieldDecorator('term', {rules: [{required: true, message: '请选择商品分组'}]})
+                (
+                  <Select mode="multiple" size="default" placeholder="请选择商品分组" style={{width: '100%'}}>
+                    {this.state.groupingData}
+                  </Select>
+                )
+                }
               </Form.Item>
               <Form.Item label="划线价" className="row0">
                 {getFieldDecorator('linePrice', {rules: [{required: true, message: '请输入划线价',},],})(<Input/>)}
@@ -286,10 +337,10 @@ class EditGoods extends Component {
                 </Upload>
               </Form.Item>
               <Form.Item label="当前版本" className="row0">
-                {getFieldDecorator('version', {rules: [{required: true, message: '请输入当前版本',},],})(<Input/>)}
+                {getFieldDecorator('version', {rules: [{required: true, message: '请输入当前版本'}]})(<Input/>)}
               </Form.Item>
               <Form.Item label="试用链接" className="row0">
-                {getFieldDecorator('trialUrl', {rules: [{required: true, message: '请输入试用链接',},],})(<Input/>)}
+                {getFieldDecorator('trialUrl', {rules: [{required: true, message: '请输入试用链接'}]})(<Input/>)}
               </Form.Item>
             </div>
           </div>

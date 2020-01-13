@@ -20,4 +20,4 @@ module.exports = {
   ],
   "ignore": [/[\/\\]core-js/, /@babel[\/\\]runtime/],
   "sourceType": 'unambiguous'
-}
+};
