@@ -16,6 +16,7 @@ const { Option } = Select;
 const qs = require("querystring");
 import {observer, inject} from "mobx-react";
 const OSS = require("ali-oss")
+import filerXSS from "../../../utils/xss"
 
 let id = 0;
 function getBase64(img, callback) {
@@ -125,7 +126,9 @@ class EditGoods extends Component {
         newVal.picUrl = this.state.imageUrl;
         console.log(this.editor.txt.html(), 'editor-text')  //富文本内容
         // console.log(this.editor.txt.text(), 'editor-text')
-        newVal.detail = this.editor.txt.html()
+        newVal.detail = filerXSS(this.editor.txt.html());
+        // console.log(this.editor.txt.html(),'1111111')
+        // console.log(filerXSS(this.editor.txt.html()),'222222222')
         let url = "";
         if (this.goodsId) {
           newVal.id = +this.goodsId;
