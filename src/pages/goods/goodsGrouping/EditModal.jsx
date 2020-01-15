@@ -26,12 +26,12 @@ class EditModal extends Component {
     validateFields(async err => {
       if (!err) {
         const groupingName = getFieldsValue();
-        //console.log(groupingName);
         this.setState({
           confirmLoading: true,
         });
-        const url = this.props.title === '编辑分组' ? '/api/goods/group/add' : '/api/goods/group/add';
-        const res = await post(url,groupingName);
+        const params = {id:this.props.editId, ...groupingName}
+        const url = this.props.title === '编辑分组' ? '/api/goods/group/update' : '/api/goods/group/add';
+        const res = await post(url, params);
         if (res.success) {
           this.setState({
             confirmLoading: false

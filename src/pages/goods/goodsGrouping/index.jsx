@@ -1,9 +1,10 @@
 import React from 'react';
 import './index.less'
-import {Button, Table, Divider, Modal} from 'antd';
+import {Button, Table, Divider, Modal, message} from 'antd';
 import EditModal from "./EditModal";
 import moment from 'moment';
 import {get, post} from 'utils/request'
+import CommonTable from "../../../components/Table";
 
 const {Column} = Table;
 
@@ -13,8 +14,8 @@ class GoodsGrouping extends React.Component {
   state = {
     groupingData: [],//分组列表
     loading: false,
-    visible: false,
-    modalTitle: '新建分组'
+    modalTitle: '新建分组',
+    listLoading: true
   };
 
   componentDidMount() {
@@ -27,7 +28,6 @@ class GoodsGrouping extends React.Component {
    * @author: Wave
    */
   showModal = () => {
-    this.setState({visible: true});
     this.addAccount();
   };
 
@@ -37,13 +37,19 @@ class GoodsGrouping extends React.Component {
    * @author: Wave
    */
   getGroupList = async () => {
+    this.setState({
+      listLoading: true
+    })
     const url = '/api/goods/group/list';
     const res = await get(url);
     if (res.data.success) {
       for (let item of res.data.result) {
         item.time = moment(item.createTime).format('YYYY-MM-DD HH:mm:ss')
       }
-      this.setState({groupingData: res.data.result});
+      this.setState({
+        groupingData: res.data.result,
+        listLoading: false
+      });
     }
   };
 
@@ -56,6 +62,7 @@ class GoodsGrouping extends React.Component {
     this.setState({
       modalTitle: '新建分组'
     });
+    this.editId = "";
     this.editModal.visible();
   };
 
@@ -72,6 +79,7 @@ class GoodsGrouping extends React.Component {
     this.editModal.props.form.setFieldsValue({
       name: record.name,
     });
+    this.editId = record.id;
     this.editModal.visible()
   };
 
@@ -86,36 +94,63 @@ class GoodsGrouping extends React.Component {
       this.getGroupList();
     }
   };
+  deleteGroup = async (record) => {
+    const params = {
+      id: record.id
+    }
+    const res = await post("/api/goods/group/delete",params);
+    if (res.success) {
+      message.success("操作成功")
+      this.getGroupList()
+    }
+  }
 
   render() {
-    const {visible} = this.state;
+    const columns = [
+      {
+        key: "productName",
+        dataIndex: "name",
+        title: "组名"
+      },
+      {
+        key: "price",
+        dataIndex: "goodsCount",
+        title: "商品数量"
+      },
+      {
+        key: "time",
+        dataIndex: "time",
+        title: "创建时间"
+      },
+      {
+        key: "action",
+        dataIndex: "action",
+        title: "操作",
+        render: (text, record) => (
+          <span>
+            <a onClick={() => this.editUserInfo(record)}>编辑</a>
+            <Divider type="vertical"/>
+            <a onClick={() => this.deleteGroup(record)} >删除</a>
+          </span>
+        )
+      },
+    ]
     return (
       <div className='goods_grouping'>
-
         <Button type="primary" onClick={this.showModal}>
           添加分组
         </Button>
-
         <div className="parting_line">
         </div>
-
-        <Table dataSource={this.state.groupingData}>
-          <Column title="组名" dataIndex="name" key="productName"/>
-          <Column title="商品数量" dataIndex="goodsCount" key="price"/>
-          <Column title="创建时间" dataIndex="time" key="time"/>
-          <Column title="操作" key="action"
-                  render={(text, record) => (
-                    <span>
-                    <a onClick={() => this.editUserInfo(record)}>编辑</a>
-                    <Divider type="vertical"/>
-                    <a>删除</a>
-                  </span>
-                  )}
-          />
-        </Table>
-
+        <CommonTable
+          dataSource={this.state.groupingData}
+          columns={columns}
+          loading={this.state.listLoading}
+        />
         <div className="add_grouping">
-          <EditModal wrappedComponentRef={(v) => this.editModal = v} title={this.state.modalTitle}
+          <EditModal wrappedComponentRef={(v) => this.editModal = v}
+                     title={this.state.modalTitle}
+                     editId={this.editId}
                      submit={this.changeGroupingInfo}/>
         </div>
 
